@@ -9,15 +9,19 @@ cloudinary.config({
 });
 
 // CREATE Product
+
 exports.createProduct = async (req, res) => {
   try {
-    const { title, OriginalPrice, DiscountedPrice, stock, description, category, subcategory, brand, badge } = req.body;
+    const {
+      title, OriginalPrice, DiscountedPrice, stock, description,
+      category, subcategory, brand, badge, attributes
+    } = req.body;
 
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "No images provided" });
     }
 
-    // Upload images to Cloudinary
+    // Upload images
     const uploadedImages = await Promise.all(
       req.files.map(async (file) => {
         const result = await cloudinary.uploader.upload(file.path, {
@@ -37,6 +41,7 @@ exports.createProduct = async (req, res) => {
       subcategory,
       brand,
       images: uploadedImages,
+      attributes: attributes || [], // ✅ add attributes
       badge: badge || null
     });
 
@@ -47,6 +52,7 @@ exports.createProduct = async (req, res) => {
     res.status(500).json({ error: "Failed to create product" });
   }
 };
+
 
 // GET All Products
 exports.getProducts = async (req, res) => {
@@ -83,12 +89,19 @@ exports.getProductById = async (req, res) => {
 // UPDATE Product
 exports.updateProduct = async (req, res) => {
   try {
-    const { title, OriginalPrice, DiscountedPrice, stock, description, category, subcategory, brand, images, badge } = req.body;
+    const {
+      title, OriginalPrice, DiscountedPrice, stock, description,
+      category, subcategory, brand, badge, attributes
+    } = req.body;
 
-    let updatedData = { title, OriginalPrice, DiscountedPrice, stock, description, category, subcategory, brand, badge };
+    let updatedData = {
+      title, OriginalPrice, DiscountedPrice, stock, description,
+      category, subcategory, brand, badge,
+      attributes: attributes || []  // ✅ update attributes
+    };
 
-    // If new images provided → upload and replace
-    if (images && images.length > 0) {
+    // Handle new images if provided
+    if (req.files && req.files.length > 0) {
       const oldProduct = await Product.findById(req.params.id);
       if (oldProduct) {
         for (let img of oldProduct.images) {
@@ -97,8 +110,8 @@ exports.updateProduct = async (req, res) => {
       }
 
       const uploadedImages = await Promise.all(
-        images.map(async (img) => {
-          const result = await cloudinary.uploader.upload(img, {
+        req.files.map(async (file) => {
+          const result = await cloudinary.uploader.upload(file.path, {
             folder: "products",
           });
           return { url: result.secure_url, public_id: result.public_id };
@@ -108,10 +121,11 @@ exports.updateProduct = async (req, res) => {
       updatedData.images = uploadedImages;
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updatedData, {
-      new: true,
-      runValidators: true,
-    });
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true, runValidators: true }
+    );
 
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
@@ -156,7 +170,7 @@ exports.getDiscountPrice = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    res.status(200).json({ 
+    res.status(200).json({
       title: product.title,
       OriginalPrice: product.OriginalPrice,
       DiscountedPrice: product.DiscountedPrice,

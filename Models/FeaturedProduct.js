@@ -34,10 +34,23 @@ const FeaturedProduct = new mongoose.Schema({
         ref: 'Subcategory',
         required: true
     },
+    brand: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Brand',
+        required: true
+    },
     images: [
         {
-            url: { type: String, required: true }, // Cloudinary secure URL
-            public_id: { type: String, required: true } // Cloudinary public_id (for delete/replace)
+            url: { type: String, required: true }, 
+            public_id: { type: String, required: true }
+        }
+    ],
+
+    // ✅ Attributes field
+    attributes: [
+        {
+            attribute: { type: mongoose.Schema.Types.ObjectId, ref: "ProductAttribute" }, // e.g. Size
+            value: { type: String } // e.g. "XL", "8", "30L"
         }
     ],
 
@@ -47,13 +60,8 @@ const FeaturedProduct = new mongoose.Schema({
     },
     badge: {
         type: String,
-        enum: ['Sale', 'New', 'Best Seller'], // optional predefined badges
+        enum: ['Sale', 'New', 'Best Seller'],
         default: null
-    },
-    brand: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Brand',
-        required: true
     },
     createdAt: {
         type: Date,
