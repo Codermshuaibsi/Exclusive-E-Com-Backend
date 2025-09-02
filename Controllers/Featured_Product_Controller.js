@@ -41,7 +41,7 @@ exports.createProduct = async (req, res) => {
       subcategory,
       brand,
       images: uploadedImages,
-      attributes: attributes || [], // ✅ add attributes
+      attributes: attributes || [], 
       badge: badge || null
     });
 
@@ -97,7 +97,7 @@ exports.updateProduct = async (req, res) => {
     let updatedData = {
       title, OriginalPrice, DiscountedPrice, stock, description,
       category, subcategory, brand, badge,
-      attributes: attributes || []  // ✅ update attributes
+      attributes: attributes || [] 
     };
 
     // Handle new images if provided
