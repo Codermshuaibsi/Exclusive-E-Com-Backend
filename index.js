@@ -28,11 +28,13 @@ const Category = require("./Routes/Category_Route");
 const SubCategory = require("./Routes/SubCategory_Route");
 const brandRoutes = require("./Routes/Brand_Route");
 const FeaturedProduct = require("./Routes/Featured_Product_Route");
+const Products = require('./Routes/Products_Route');
 
 app.use("/api/auth", Auth);
 app.use("/api/category", Category);
 app.use("/api/subcategory", SubCategory);
 app.use("/api/brands", brandRoutes);
+app.use("/api/products", Products);
 app.use("/api/featured/product", FeaturedProduct);
 
 // Server
